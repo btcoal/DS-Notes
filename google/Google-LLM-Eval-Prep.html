@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Google-LLM-Eval-Prep.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="google-llm-eval-prep">Google LLM Eval Prep</h1>
+<h2 id="miller-%22adding-error-bars-to-evals-a-statistical-approach-to-language-model-evaluations%22-2024">Miller &quot;Adding Error Bars to Evals: A Statistical Approach to Language Model Evaluations&quot; (2024)</h2>
+<p>Start with the hypothetical <em>super-population</em> of all possible questions we could pose to a LLM [^1].</p>
+<p>[^1]: Doesn't this introduce another source of uncertainty? How to think about this?</p>
+<p>An eval consists of $n$ independently drawn questions.</p>
+<p>The score on question $i$ is $s_i$. Miller decomposes the score into a &quot;mean&quot; component and a zero-mean &quot;random&quot; component:
+$$s_i = x_i + \varepsilon_i$$</p>
+<p><strong>What does this mean?</strong></p>
+<p>$x_i$ is the &quot;true&quot; score for question $i$ (the expected score if we could ask that question infinitely many times). $\varepsilon_i$ is the noise due to randomness in the model's response. What is (are) the source(s) of randomness in this score?</p>
+<ul>
+<li>$x_i = \mathbb{E}[s_i \mid \text{question } i]$ is the <em>conditional mean score</em>.</li>
+<li>$\varepsilon_i = s_i - x_i$ is a zero-mean residual capturing randomness conditional on that question.</li>
+</ul>
+<p>The question $i$ is fixed. The randomness comes from how the model produces an answer and how we score that answer.</p>
+<ol>
+<li><strong>stochastic decoding</strong>. Most evals sample from the model rather than taking a deterministic argmax. Temperature, top-p, top-k, nucleus sampling, etc., all introduce randomness. Even with the same prompt and model weights, repeated runs can yield different outputs, hence different scores. This is the dominant source in most modern LLM evals.</li>
+</ol>
+<!-- TODO: Find examples among frontier models of the decoding process for evals on benchmarks -->
+<ol start="2">
+<li><strong>internal nondeterminism in inference</strong>. GPU kernels, reduced-precision arithmetic, parallelism, and non-deterministic execution order can introduce tiny variations that sometimes flip tokens or downstream scoring outcomes. This is usually smaller than sampling noise, but it is real.</li>
+</ol>
+<!-- TODO: Can we quantify? How would we? -->
+<ol start="3">
+<li><strong>scoring noise induced by discrete evaluation rules</strong>. Many evals map a complex output to a coarse score: correct/incorrect, pass/fail, exact-match, or thresholded F1. Even if the model’s latent “competence” on the question is stable, small variations in wording or reasoning can push the output across a scoring boundary. This converts smooth uncertainty into variance in $s_i$.</li>
+</ol>
+<!-- TODO: Find examples among frontier models -->
+<ol start="4">
+<li><strong>randomness inside the evaluation pipeline</strong>. Some evals use stochastic graders (LLM-as-judge), randomized tie-breaking, or sampling inside a chain-of-thought or tool-use loop. Any randomness there also ends up in $\varepsilon_i$.</li>
+</ol>
+<!-- TODO: Find examples among frontier models -->
+<p>What is explicitly <em>not</em> in $\varepsilon_i$ is variation due to question difficulty. That lives in $x_i$. Easy questions have high $x_i$, hard ones have low $x_i$, and the spread of those $x_i$’s across questions is the “between-question” variance that Miller later calls $\mathrm{Var}(x)$.</p>
+<p>This decomposition separates two levers:</p>
+<ul>
+<li>Variance from <em>which questions you sampled</em> (immutable unless you change the eval).</li>
+<li>Variance from <em>how noisily the model answers a fixed question</em> (reducible via resampling or next-token probabilities).</li>
+</ul>
+<p>That distinction underpins Miller’s variance-reduction arguments later in the paper .</p>
+<p>See <a href="https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/">Horace He, &quot;Defeating Nondeterminism in LLM Inference&quot;</a></p>
+<h2 id="notes-docs">Notes Docs</h2>
+<ul>
+<li><a href="../../notes/applied-llms.md">Applied LLMs</a></li>
+</ul>
+<h2 id="gemini">Gemini</h2>
+<h3 id="data-intuition-the-%22llm-eval%22-lens"><strong>Data Intuition (The &quot;LLM Eval&quot; Lens)</strong></h3>
+<p>Standard Google &quot;Data Intuition&quot; asks about ecosystem metrics (e.g., &quot;How to measure search quality?&quot;). For Applied AI, you must adapt this to conversational agents.</p>
+<ul>
+<li><strong>The Hierarchy of LLM Metrics:</strong>
+<ul>
+<li><strong>N-gram based (Legacy):</strong> BLEU, ROUGE (Know <em>why</em> these fail for chat—they measure overlap, not meaning).</li>
+<li><strong>Embedding based:</strong> BERTScore (Semantic similarity).</li>
+<li><strong>Model-based (The Standard):</strong> &quot;LLM-as-a-judge&quot; (Using a stronger model like Gemini Ultra to grade a smaller model's response).</li>
+<li><strong>Human-aligned:</strong> RLHF reward model scores, Elo ratings (Chatbot Arena style).</li>
+</ul>
+</li>
+<li><strong>Specific Evaluation Dimensions (The &quot;Business&quot; side):</strong>
+<ul>
+<li><strong>Factuality/Grounding:</strong> Did the agent hallucinate? (Metric: Citation recall).</li>
+<li><strong>Faithfulness:</strong> Did the agent stick to the provided context (RAG)?</li>
+<li><strong>Safety/Harm:</strong> Jailbreak resistance, PII leakage.</li>
+<li><strong>Utility:</strong> Did the user actually solve their problem? (Metric: &quot;Sessions with &lt; 2 turns&quot; might be good or bad depending on the task).</li>
+</ul>
+</li>
+</ul>
+<p><strong>Sample Staff-Level Prompt:</strong></p>
+<blockquote>
+<p><em>&quot;We are deploying a Gemini-based customer support agent for a car insurer. How do we know if it's 'good' enough to launch? How do we monitor it post-launch?&quot;</em>
+<strong>Staff-Level Answer Structure:</strong></p>
+<ol>
+<li><strong>Deconstruct &quot;Good&quot;:</strong> It's a trade-off between <em>Resolution Rate</em> (Business value), <em>Hallucination Rate</em> (Risk), and <em>Latency/Cost</em> (Engineering constraints).</li>
+<li><strong>Offline Eval Strategy:</strong> Create a &quot;Golden Dataset&quot; of 500 hard historical queries. Run the new model. Use <code>LLM-as-a-judge</code> to grade answers against human-written gold answers.</li>
+<li><strong>Online Experimentation:</strong> You cannot purely A/B test &quot;satisfaction&quot; easily. Propose proxy metrics: &quot;Sentiment analysis of user's final message&quot; or &quot;Rate of escalation to human agent.&quot;</li>
+<li><strong>Long-term Metric:</strong> &quot;Cost per Successful Resolution&quot; vs. &quot;Customer Churn 3 months later.&quot;</li>
+</ol>
+</blockquote>
+<h3 id="methodology-for-experimentation--ml">Methodology for Experimentation &amp; ML</h3>
+<p>In Applied AI, standard A/B testing is difficult because LLM responses are non-deterministic and high-variance.</p>
+<ul>
+<li><strong>Variance Reduction:</strong> LLMs are noisy. How do you detect a +1% improvement in &quot;helpfulness&quot; without running a 6-month experiment? (Answer: Use pre-experiment covariates, CUPED, or within-subject designs if possible).</li>
+<li><strong>Counterfactual Evaluation:</strong> &quot;How do we know what the user <em>would</em> have done if the model gave a different answer?&quot;</li>
+<li><strong>Feedback Loops:</strong>
+<ul>
+<li><strong>Explicit:</strong> Thumbs up/down (Sparse, biased).</li>
+<li><strong>Implicit:</strong> Did the user copy-paste the code? Did they re-phrase the prompt (bad signal)? Did they say &quot;Thanks&quot; (good signal)?</li>
+<li>See <a href="https://medium.com/pinterest-engineering/the-field-guide-to-non-engagement-signals-a4dd9089a176">The Field Guide to Non-Engagement Signals (Pinterest)</a></li>
+</ul>
+</li>
+<li><strong>RAG (Retrieval Augmented Generation) Specifics:</strong>
+<ul>
+<li>If the answer is bad, was it the <strong>Retrieval</strong> (found wrong doc) or the <strong>Generation</strong> (read doc wrong)?</li>
+<li><em>Metric:</em> Recall@K for retrieval vs. Faithfulness for generation.</li>
+</ul>
+</li>
+</ul>
+<h3 id="technical-refresher-checklist"><strong>Technical Refresher Checklist</strong></h3>
+<ul>
+<li><strong>LLM Papers:</strong> Read up on <em>Constitutional AI</em> (Anthropic) or <em>RLHF</em> basics (OpenAI/DeepMind). Know what &quot;PPO&quot; and &quot;DPO&quot; are at a high level.</li>
+<li><strong>Metrics:</strong> Precision/Recall/F1 (standard), but also <strong>RAGAS</strong> (Retrieval Augmented Generation Assessment) framework concepts.</li>
+<li><strong>Stats:</strong> Bootstrapping, Confidence Intervals, Power Analysis (specifically for ratio metrics).</li>
+</ul>
+<h3 id="suggested-video-resource"><strong>Suggested Video Resource</strong></h3>
+<p>This video covers the nuance of &quot;Product Sense&quot; and &quot;Metric Design&quot; which is 80% of the &quot;Data Intuition&quot; rounds. While generic to DS, the <em>structure</em> of the answers (Clarify -&gt; Framework -&gt; Metric -&gt; Trade-off) is exactly what Google looks for.</p>
+<p><a href="https://www.google.com/search?q=https://www.youtube.com/watch%3Fv%3DKzK8IuS88iU">Data Scientist Interview - Product Metric Question (Facebook / Google)</a></p>
+<p><em>Relevance: This video demonstrates the &quot;Framework&quot; approach to metric design (Clarifying the goal, defining user segments, and selecting counter-metrics), which is the critical skill for your &quot;Data Intuition&quot; rounds, even when applied to LLMs.</em></p>
+<h2 id="claude">Claude</h2>
+<h3 id="part-1-llm-evaluation-fundamentals">Part 1: LLM Evaluation Fundamentals</h3>
+<p><strong>Reference-based metrics</strong> — comparing model outputs to ground truth</p>
+<ul>
+<li>BLEU, ROUGE, METEOR for text similarity</li>
+<li>Exact match, F1 for extractive tasks</li>
+<li>Limitations: multiple valid answers exist, surface-form matching misses semantic equivalence</li>
+</ul>
+<p><strong>Reference-free / Model-based evaluation</strong></p>
+<ul>
+<li>LLM-as-judge approaches (using a stronger model to score outputs)</li>
+<li>Reward models and preference modeling</li>
+<li>Human-AI agreement metrics (Cohen's kappa, Krippendorff's alpha)</li>
+</ul>
+<p><strong>Human evaluation design</strong></p>
+<ul>
+<li>Rating scales (Likert, pairwise preference, best-worst scaling)</li>
+<li>Inter-annotator agreement and when it matters</li>
+<li>Cost-quality tradeoffs, when to use human eval vs. automated</li>
+</ul>
+<p><strong>Dimensions to Evaluate in Conversational Agents.</strong> Given they build customer service and ordering agents, expect questions about measuring:</p>
+<ul>
+<li><strong>Factual accuracy / groundedness</strong> — does the agent hallucinate?</li>
+<li><strong>Task completion rate</strong> — did the user accomplish their goal?</li>
+<li><strong>Conversation efficiency</strong> — turns to resolution, handle time</li>
+<li><strong>Safety and policy compliance</strong> — refusals, toxicity, PII handling</li>
+<li><strong>User satisfaction</strong> — CSAT, NPS, or proxy metrics</li>
+<li><strong>Latency and cost</strong> — especially for production systems</li>
+</ul>
+<p>Sample Questions to Prepare</p>
+<ul>
+<li>&quot;How would you design an evaluation framework for a customer service agent?&quot;</li>
+<li>&quot;A model scores well on automated metrics but users complain it's unhelpful. How do you investigate?&quot;</li>
+<li>&quot;How do you evaluate whether an agent is hallucinating vs. being appropriately uncertain?&quot;</li>
+<li>&quot;Design a metric for measuring whether an agent successfully completes a food order.&quot;</li>
+</ul>
+<p>Statistics &amp; Experimentation</p>
+<ul>
+<li><strong>Hypothesis testing</strong>
+<ul>
+<li>Power analysis and sample size calculation</li>
+<li>Multiple comparison corrections (Bonferroni, FDR)</li>
+<li>When parametric vs. non-parametric tests apply</li>
+</ul>
+</li>
+<li><strong>A/B testing and causal inference</strong>
+<ul>
+<li>Randomization unit selection (user vs. session vs. query)</li>
+<li>Network effects and interference</li>
+<li>Regression discontinuity, difference-in-differences, synthetic control</li>
+<li>Metric sensitivity and guardrail metrics</li>
+</ul>
+</li>
+<li><strong>Bayesian approaches</strong>
+<ul>
+<li>Bayesian A/B testing, credible intervals</li>
+<li>When Bayesian methods are preferable (early stopping, continuous monitoring)</li>
+</ul>
+</li>
+</ul>
+<p>LLM-Specific Experimentation Challenges</p>
+<ul>
+<li><strong>High variance in outputs</strong> — same prompt can yield different responses</li>
+<li><strong>Prompt sensitivity</strong> — small changes cause large metric swings</li>
+<li><strong>Evaluation cost</strong> — human eval doesn't scale, automated metrics are imperfect</li>
+<li><strong>Temporal drift</strong> — model behavior may change with updates</li>
+</ul>
+<p>Sample Questions</p>
+<ul>
+<li>&quot;You're launching a new prompt template. Design an experiment to measure its impact on task completion.&quot;</li>
+<li>&quot;Your A/B test shows a 2% improvement in CSAT but a 5% increase in handle time. How do you decide whether to launch?&quot;</li>
+<li>&quot;How would you set up a metric to detect model degradation over time?&quot;</li>
+</ul>
+<h3 id="ml-modeling--data-intuition">ML Modeling &amp; Data Intuition</h3>
+<p>ML Concepts Relevant to LLM Applications</p>
+<ul>
+<li>Fine-tuning vs. prompting vs. RAG tradeoffs</li>
+<li>Distillation (training smaller models from larger ones)</li>
+<li>Calibration and confidence estimation</li>
+<li>Active learning for labeling efficiency</li>
+</ul>
+<p>Expect open-ended case questions like:</p>
+<ul>
+<li>&quot;Agent resolution rate dropped 10% last week. Walk me through your investigation.&quot;</li>
+<li>&quot;We have 1M unlabeled conversations. How would you prioritize what to label for evaluation?&quot;</li>
+<li>&quot;Users in one region have lower satisfaction scores. What hypotheses would you explore?&quot;</li>
+</ul>
+<p>Framework for these questions</p>
+<ol>
+<li>Clarify the metric definition and data source</li>
+<li>Segment the data (time, user type, agent version, conversation type)</li>
+<li>Propose hypotheses ranked by likelihood</li>
+<li>Suggest specific analyses or experiments to disambiguate</li>
+</ol>
+<h3 id="resources">Resources</h3>
+<ul>
+<li><strong>Anthropic's work on constitutional AI and model evaluation</strong> — relevant to safety/alignment eval</li>
+<li><strong>Google's HELM benchmark paper</strong> — comprehensive LLM evaluation framework</li>
+<li><strong>&quot;LLM-as-Judge&quot; paper</strong> (Zheng et al.) — directly relevant to automated evaluation</li>
+<li><strong>Trustworthy LLMs survey papers</strong> — covers hallucination detection, calibration</li>
+</ul>
+<h2 id="chatgpt">ChatGpt</h2>
+<h3 id="data-intuition--statistics-llm-eval-lens">Data intuition + statistics (LLM-eval lens)</h3>
+<p>Typical shapes of questions:</p>
+<ul>
+<li>“We changed the system prompt and human ratings went up. How do you know this is real?”</li>
+<li>“Offline eval improved, online metrics regressed. What happened?”</li>
+<li>“Two annotators disagree 30% of the time. What do you do?”</li>
+</ul>
+<p>You should be fluent discussing:</p>
+<ul>
+<li>Inter-rater reliability (Cohen’s κ, Krippendorff’s α) and when they fail.</li>
+<li>Why binomial assumptions break down with LLM outputs.</li>
+<li>When you’d prefer bootstrap or permutation tests over asymptotics.</li>
+<li>Simpson’s paradox in multi-domain LLM evaluations.</li>
+</ul>
+<h3 id="data-intuition--business--product-case">Data intuition + business / product case</h3>
+<p>A canonical frame you should internalize:</p>
+<ul>
+<li>What is the <strong>user goal</strong>?</li>
+<li>What behavior is the model supposed to change?</li>
+<li>What observable signals correlate with that behavior?</li>
+<li>What are the known failure modes of those signals?</li>
+</ul>
+<p>For example, if the agent is for call centers:</p>
+<ul>
+<li>Is success shorter calls, higher CSAT, fewer escalations, or revenue?</li>
+<li>Which of those can be causally attributed to the model?</li>
+<li>What happens when the model “sounds confident but is wrong”?</li>
+</ul>
+<p>Expect to be asked to design:</p>
+<ul>
+<li>an evaluation framework,</li>
+<li>an experiment,</li>
+<li>and a post-launch monitoring plan.</li>
+</ul>
+<h3 id="llm-evaluation-fundamentals-must-be-fluent">LLM evaluation fundamentals (must be fluent)</h3>
+<ul>
+<li>Offline vs online evaluation and why correlation between them is fragile.</li>
+<li>Human-in-the-loop evaluation:
+<ul>
+<li>rubric design,</li>
+<li>calibration,</li>
+<li>anchoring bias,</li>
+<li>drift over time.</li>
+</ul>
+</li>
+<li>Reference-free evaluation (LLM-as-judge):
+<ul>
+<li>when it works,</li>
+<li>when it catastrophically doesn’t,</li>
+<li>how to validate it empirically.</li>
+</ul>
+</li>
+<li>Distribution shift:
+<ul>
+<li>prompts,</li>
+<li>domains,</li>
+<li>user intent.</li>
+</ul>
+</li>
+</ul>
+<h3 id="statistics--experimentation-llm-specific-framing">Statistics &amp; experimentation (LLM-specific framing)</h3>
+<p>A strong answer often includes: “I’d start simple, then test whether assumptions hold.”</p>
+<p>You should be comfortable discussing:</p>
+<ul>
+<li>Non-IID data (conversation turns are correlated).</li>
+<li>Clustered standard errors at user or session level.</li>
+<li>Sequential testing and peeking.</li>
+<li>CUPED-style variance reduction and when it’s invalid for LLM outputs.</li>
+<li>Multiple testing in metric exploration.</li>
+</ul>
+<h3 id="metrics--measurement-theory-this-is-the-sleeper-topic">Metrics &amp; measurement theory (this is the sleeper topic)</h3>
+<p>They care deeply about:</p>
+<ul>
+<li>construct validity (does the metric measure the thing?),</li>
+<li>sensitivity vs robustness,</li>
+<li>gaming and Goodhart’s Law.</li>
+</ul>
+<p>Be ready to say:</p>
+<ul>
+<li>“This metric is useful short-term but dangerous long-term.”</li>
+<li>“This metric should be directional, not optimized.”</li>
+</ul>
+<h2 id="coding-python-data-manipulation">Coding (Python Data Manipulation)</h2>
+<ul>
+<li>Log Parsing
+<ul>
+<li>&quot;Here is a raw text file of a chat conversation <code>[User]... [Bot]...</code>. Parse it into a pandas DataFrame with columns <code>turn_id</code>, <code>speaker</code>, <code>text</code>, <code>latency</code>.&quot;</li>
+</ul>
+</li>
+<li>String Manipulation
+<ul>
+<li>Regex</li>
+<li>tokenization (splitting by whitespace or sentence boundaries)</li>
+<li>calculating overlap between two strings.</li>
+</ul>
+</li>
+<li>API Simulation
+<ul>
+<li>&quot;Write a function that calls this (mock) LLM API, handles rate limits/retries, and processes the JSON response.&quot;</li>
+</ul>
+</li>
+<li>Basic probability simulations
+<ul>
+<li>Simulate a coin flip process</li>
+<li>Bootstrap confidence intervals for a metric</li>
+</ul>
+</li>
+<li>data manipulation with pandas
+<ul>
+<li>Aggregations, groupby, window functions</li>
+<li>Joins and merges</li>
+<li>Handling missing data</li>
+<li>Writing clean, readable code with good variable names</li>
+<li><code>groupby</code>, <code>apply</code>, <code>pivot_table</code> on text data.</li>
+</ul>
+</li>
+<li>Practice Problems
+<ul>
+<li>Calculate per-user metrics from a conversation log</li>
+<li>Compute rolling averages or sessionization</li>
+<li>Join user attributes to event data and compute conditional metrics</li>
+<li>Flag anomalies or outliers in a time series</li>
+</ul>
+</li>
+</ul>
+<h2 id="resources">Resources</h2>
+<h3 id="statistics-by-topic">Statistics by Topic</h3>
+<h4 id="hypothesis-testing-experimentatal-design-etc">Hypothesis Testing, Experimentatal Design, etc.</h4>
+<ul>
+<li><a href="../../../Books/Casella_Berger_Statistical_Inference.pdf">Casella and Berger - Statistical Inference</a>
+<ul>
+<li>Chapter 7 - Point Estimation</li>
+<li>Chapter 8 - Hypothesis Testing</li>
+<li>Chapter 9 - Interval Estimation</li>
+</ul>
+</li>
+<li>Larsen and Marx
+<ul>
+<li>Chapter 6 - Hypothesis Testing</li>
+<li>Chapter 7 - The Normal Distribution</li>
+<li>Chapter 9 - Two-Sample Problems</li>
+<li>Chapter 12 - Analysis of Variance</li>
+<li>Chapter 13 - Randomized Block Designs?</li>
+</ul>
+</li>
+<li>Rice - Mathematical Statistics and Data Analysis
+<ul>
+<li>Chapter 11 - Comparing Two Samples</li>
+<li>Chapter 12 - Analysis of Variance</li>
+<li>Chapter 13 - The Analysis of Categorical Data</li>
+</ul>
+</li>
+</ul>
+<h4 id="regression-analysis">Regression Analysis</h4>
+<ul>
+<li>
+<p>Larsen and Marx, Chapter 11 - Regression</p>
+</li>
+<li>
+<p>Rice - Mathematical Statistics and Data Analysis, Chapter 14 - Linear Least Squares</p>
+</li>
+<li>
+<p>Efron and Hastie - Computer Age Statistical Inference, Chapter 8 - Generalized Linear Models and Regression Trees</p>
+</li>
+<li>
+<p>Kennedy - A Guide to Econometrics</p>
+<ul>
+<li>6 - Violating Assumption One: Wrong Regressors, Nonlinearities, and Parameter Inconstancy</li>
+<li>7 - Violating Assumption Two: Nonzero Expected Disturbance</li>
+<li>8 - Violating Assumption Three: Nonspherical Disturbances</li>
+<li>9 - Violating Assumption Four: Measurement Errors and Autoregression</li>
+<li>10 - Violating Assumption Four: Simultaneous Equations Models</li>
+<li>11 - Violating Assumption Five: Multicollinearity</li>
+<li>14 - Dummy Variables</li>
+<li>15 - Qualitative Dependent Variables</li>
+<li>16 - Limited Dependent Variables</li>
+<li>17 - Panel Data</li>
+</ul>
+</li>
+</ul>
+<h3 id="statistics-by-reference">Statistics by Reference</h3>
+<h4 id="casella-and-berger---statistical-inference"><a href="../../../Books/Casella_Berger_Statistical_Inference.pdf">Casella and Berger - Statistical Inference</a></h4>
+<ul>
+<li>Chapter 7 - Point Estimation</li>
+<li>Chapter 8 - Hypothesis Testing</li>
+<li>Chapter 9 - Interval Estimation</li>
+</ul>
+<h4 id="larsen-and-marx">Larsen and Marx</h4>
+<ul>
+<li>Chapter 6 - Hypothesis Testing</li>
+<li>Chapter 7 - The Normal Distribution</li>
+<li>Chapter 9 - Two-Sample Problems</li>
+<li><span style="color: grey"><em>Chapter 8 - Categorizing Data</em></span></li>
+<li><span style="color: grey"><em>Chapter 10 - Goodness-of-Fit Tests</em></span></li>
+<li>Chapter 11 - Regression</li>
+<li>Chapter 12 - Analysis of Variance</li>
+<li>Chapter 13 - Randomized Block Designs</li>
+</ul>
+<h4 id="rice---mathematical-statistics-and-data-analysis">Rice - Mathematical Statistics and Data Analysis</h4>
+<ul>
+<li>Chapter 11 - Comparing Two Samples</li>
+<li>Chapter 12 - Analysis of Variance</li>
+<li>Chapter 13 - The Analysis of Categorical Data</li>
+<li>Chapter 14 - Linear Least Squares</li>
+</ul>
+<h4 id="efron-and-hastie---computer-age-statistical-inference">Efron and Hastie - Computer Age Statistical Inference</h4>
+<ul>
+<li>Chapter 8 - Generalized Linear Models and Regression Trees</li>
+<li>Chapter 10 - The Jackknife and the Bootstrap</li>
+<li>Chapter 11 - Boostrap Confidence Intervals</li>
+<li>Chapter 12 - Cross-Validation and $C_p$ Estimates of Prediction Error</li>
+<li>Chapter 15 - Large-Scale Hypothesis Testing and FDRs</li>
+<li>Chapter 17 - Random Forests and Boosting</li>
+</ul>
+<h4 id="kennedy---a-guide-to-econometrics">Kennedy - A Guide to Econometrics</h4>
+<ul>
+<li>6 - Violating Assumption One: Wrong Regressors, Nonlinearities, and Parameter Inconstancy</li>
+<li>7 - Violating Assumption Two: Nonzero Expected Disturbance</li>
+<li>8 - Violating Assumption Three: Nonspherical Disturbances</li>
+<li>9 - Violating Assumption Four: Measurement Errors and Autoregression</li>
+<li>10 - Violating Assumption Four: Simultaneous Equations Models</li>
+<li>11 - Violating Assumption Five: Multicollinearity</li>
+<li>14 - Dummy Variables</li>
+<li>15 - Qualitative Dependent Variables</li>
+<li>16 - Limited Dependent Variables</li>
+<li>17 - Panel Data</li>
+</ul>
+<h3 id="llm-evaluation-papers">LLM Evaluation Papers</h3>
+<ul>
+<li><a href="./2411.00640v1.pdf">paper</a></li>
+<li><a href="./2503.01747v3.pdf">paper</a></li>
+<li><a href="./2504.21303v1.pdf">paper</a></li>
+</ul>
+
+</body>
+</html>

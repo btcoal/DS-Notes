@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>nn-training-and-optimization.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="neural-network-training">Neural Network Training</h1>
+<p><em><strong>Loss Functions, Optimization, and Learning Rate Schedules</strong></em></p>
+<h2 id="activation-functions">Activation Functions</h2>
+<p><strong>ReLU (Rectified Linear Unit)</strong>: $f(x) = \max(0, x)$</p>
+<ul>
+<li>Pros: Simple, efficient, mitigates vanishing gradient problem.</li>
+<li>Cons: Can suffer from &quot;dying ReLU&quot; problem where neurons become inactive.</li>
+</ul>
+<p><strong>Sigmoid</strong>: $f(x) = \frac{1}{1 + e^{-x}}$</p>
+<ul>
+<li>Pros: Smooth gradient, outputs between 0 and 1 (good for probabilities).</li>
+<li>Cons: Vanishing gradient for large positive/negative inputs, not zero-centered.</li>
+</ul>
+<p><strong>Tanh (Hyperbolic Tangent)</strong>: $f(x) = \tanh(x) = \frac{e^{x} - e^{-x}}{e^{x} + e^{-x}}$</p>
+<ul>
+<li>Pros: Zero-centered outputs, stronger gradients than sigmoid.</li>
+<li>Cons: Still suffers from vanishing gradient for large inputs.</li>
+</ul>
+<p><strong>Leaky ReLU</strong>: $f(x) = \max(0.01x, x)$</p>
+<ul>
+<li>Pros: Mitigates dying ReLU problem by allowing a small gradient when inactive.</li>
+<li>Cons: Introduces a small slope in the negative region, which may not always be ideal.</li>
+</ul>
+<p><strong>Swiglu</strong>: $f(x) = x \cdot \text{sigmoid}(x)$</p>
+<ul>
+<li>Pros: Smooth, non-monotonic, combines benefits of ReLU and sigmoid.</li>
+<li>Cons: More computationally expensive than ReLU.</li>
+</ul>
+<h2 id="loss-functions">Loss Functions</h2>
+<h3 id="when-to-use-which-loss-function">When to use which loss function</h3>
+<table>
+<thead>
+<tr>
+<th>Task Type</th>
+<th>Common Loss Functions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sequence prediction</td>
+<td>Cross-Entropy, NLL</td>
+</tr>
+<tr>
+<td>binary classification</td>
+<td>Binary Cross-Entropy</td>
+</tr>
+<tr>
+<td>multi-class classification</td>
+<td>Softmax Cross-Entropy</td>
+</tr>
+<tr>
+<td>regression</td>
+<td>MSE, MAE, Huber Loss</td>
+</tr>
+<tr>
+<td>ranking/retrieval</td>
+<td>Contrastive Loss, Triplet Loss, InfoNCE</td>
+</tr>
+<tr>
+<td>segmentation</td>
+<td>Dice Loss, Jaccard Loss</td>
+</tr>
+<tr>
+<td>metric learning</td>
+<td>Contrastive Loss, Triplet Loss</td>
+</tr>
+<tr>
+<td>image generation</td>
+<td>Perceptual Loss, GAN Loss</td>
+</tr>
+<tr>
+<td>language generation</td>
+<td>Cross-Entropy, Perplexity</td>
+</tr>
+<tr>
+<td>video generation</td>
+<td>MSE, Perceptual Loss</td>
+</tr>
+</tbody>
+</table>
+<h3 id="binary-cross-entropy">Binary Cross-Entropy</h3>
+<ul>
+<li>BCELoss – for binary classification.</li>
+</ul>
+<p>$$
+L = -\frac{1}{N} \sum_{i=1}^{N} \left[ y_i \log(p_i) + (1 - y_i) \log(1 - p_i) \right]
+$$</p>
+<p>where $y_i$ is the true label and $p_i$ is the predicted probability.</p>
+<p>In PyTorch, use <code>nn.BCELoss</code> with sigmoid outputs.</p>
+<h3 id="negative-log-likelihood-nll">Negative Log Likelihood (NLL)</h3>
+<ul>
+<li>Commonly used with softmax outputs for multi-class classification.
+$$
+L = -\sum_{i=1}^{N} \log(p_{i, y_i})
+$$</li>
+</ul>
+<p>where $p_{i, y_i}$ is the predicted probability for the true class $y_i$.</p>
+<p>In PyTorch, use <code>nn.NLLLoss</code> with log-probabilities from <code>LogSoftmax</code>.</p>
+<h3 id="softmax-cross-entropy">Softmax Cross-Entropy</h3>
+<ul>
+<li>Combines softmax activation and cross-entropy loss for multi-class classification.
+$$
+L = -\sum_{i=1}^{N} \sum_{c=1}^{C} y_{i,c} \log\left(\frac{\exp(z_{i,c})}{\sum_{k=1}^{C} \exp(z_{i,k})}\right)
+$$</li>
+</ul>
+<p>where $z_{i,c}$ is the logit for class $c$ of sample $i$, and $y_{i,c}$ is the one-hot encoded true label.</p>
+<p>In PyTorch, use <code>nn.CrossEntropyLoss</code>, which combines <code>LogSoftmax</code> and <code>NLLLoss</code>.</p>
+<h3 id="contrastive-loss-%E2%80%93-metric-learning-siamese-networks">Contrastive loss – metric learning, siamese networks.</h3>
+<ul>
+<li>Contrastive Loss is used to learn embeddings where similar samples are pulled together and dissimilar samples are pushed apart. It is commonly used in siamese networks for tasks like face verification.
+$$
+L = \frac{1}{2N} \sum_{i=1}^{N} \left[ y_i d_i^2 + (1 - y_i) \max(0, m - d_i)^2 \right]
+$$</li>
+</ul>
+<p>where $d_i$ is the distance between the pair of samples, $y_i$ is 1 if they are similar and 0 if dissimilar, and $m$ is a margin.</p>
+<p>Implemented in PyTorch as a custom loss function, e.g.:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">import</span> torch
+<span class="hljs-keyword">import</span> torch.nn <span class="hljs-keyword">as</span> nn
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ContrastiveLoss</span><span class="hljs-params">(nn.Module)</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, margin=<span class="hljs-number">1.0</span>)</span>:</span>
+        super(ContrastiveLoss, self).__init__()
+        self.margin = margin
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">forward</span><span class="hljs-params">(self, output1, output2, label)</span>:</span>
+        euclidean_distance = nn.functional.pairwise_distance(output1, output2)
+        loss_contrastive = torch.mean(
+            label * torch.pow(euclidean_distance, <span class="hljs-number">2</span>) +
+            (<span class="hljs-number">1</span> - label) * torch.pow(torch.clamp(self.margin - euclidean_distance, min=<span class="hljs-number">0.0</span>), <span class="hljs-number">2</span>)
+        )
+        <span class="hljs-keyword">return</span> loss_contrastive
+</div></code></pre>
+<h3 id="infonce--nt-xent-loss-%E2%80%93-foundation-of-contrastive-self-supervised-learning-see-lilian-wangs-post">InfoNCE / NT-Xent loss – foundation of contrastive self-supervised learning. See <a href="https://lilianweng.github.io/posts/2021-05-31-contrastive/">Lilian Wang's post</a>.</h3>
+<ul>
+<li>A popular loss function for contrastive learning, particularly in self-supervised learning frameworks like SimCLR. It encourages similar samples to have higher similarity scores while dissimilar samples have lower scores.</li>
+</ul>
+<p>$
+L = -\log \frac{\exp(\text{sim}(x_i, x_j)/\tau)}{\sum_{k=1}^{2N} \mathbb{1}_{[k \neq i]} \exp(\text{sim}(x_i, x_k)/\tau)}
+$</p>
+<p>where $\text{sim}(x_i, x_j)$ is the similarity (e.g., cosine similarity) between samples $x_i$ and $x_j$, $\tau$ is a temperature parameter, and $N$ is the batch size.</p>
+<h3 id="kullback-leibler-divergence">Kullback-Leibler Divergence</h3>
+<ul>
+<li>Measures how one probability distribution diverges from a second, expected probability distribution. Commonly used in variational autoencoders and knowledge distillation.
+$$
+D_{KL}(P || Q) = \sum_{i} P(i) \log\left(\frac{P(i)}{Q(i)}\right)
+$$</li>
+</ul>
+<p>where $P$ is the true distribution and $Q$ is the predicted distribution.</p>
+<p>Note that KL divergence is not symmetric: $D_{KL}(P || Q) \neq D_{KL}(Q || P)$.</p>
+<p>In PyTorch, use <code>nn.KLDivLoss</code> with log-probabilities.</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> torch.nn <span class="hljs-keyword">import</span> KLDivLoss
+criterion = KLDivLoss(reduction=<span class="hljs-string">'batchmean'</span>)
+</div></code></pre>
+<h3 id="regression-metrics">Regression Metrics</h3>
+<ul>
+<li>
+<p>Mean Absolute Error (MAE)
+$MAE(y, \hat{y}) = \frac{1}{N} \sum_{i=1}^{N} |y_i - \hat{y}_i|$</p>
+</li>
+<li>
+<p>Mean Squared Error (MSE)
+$MSE(y, \hat{y}) = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}_i)^2$</p>
+</li>
+<li>
+<p>Huber loss – regression robust to outliers.
+$$
+L_\delta(y, \hat{y}) = \begin{cases}
+\frac{1}{2}(y - \hat{y})^2 &amp; \text{for } |y - \hat{y}| \leq \delta \
+\delta (|y - \hat{y}| - \frac{1}{2}\delta) &amp; \text{otherwise}
+\end{cases}
+$$</p>
+</li>
+</ul>
+<h3 id="focal-loss">Focal loss</h3>
+<p>Focal loss combats class imbalance by focusing on hard examples.</p>
+<h3 id="dice-lossjaccard-loss">Dice loss/Jaccard loss</h3>
+<p>Dice loss/Jaccard loss are for segmentation.</p>
+<h3 id="triplet-loss-%E2%80%93-enforces-relative-embedding-distances">Triplet loss – enforces relative embedding distances.</h3>
+<p>Triplet loss enforces relative embedding distances.</p>
+<h2 id="batch-size-learning-rate-and-epochs">Batch size, learning rate, and epochs</h2>
+<ul>
+<li>
+<p><strong>Batch Size:</strong> Larger batch sizes can lead to more stable gradient estimates, but may require adjustments to the learning rate. Smaller batch sizes introduce more noise in gradients, which can help escape local minima but may slow convergence.</p>
+</li>
+<li>
+<p><strong>Learning Rate:</strong> A higher learning rate can speed up training but risks overshooting minima, while a lower learning rate provides more precise convergence but may require more epochs.</p>
+</li>
+<li>
+<p><strong>Epochs:</strong> More epochs allow the model to learn more from the data, but excessive epochs can lead to overfitting. The optimal number of epochs depends on the dataset size and complexity.</p>
+</li>
+</ul>
+<p>A common strategy is to start with a moderate batch size and learning rate, then adjust based on validation performance. Techniques like learning rate scheduling and early stopping can help manage the trade-offs between these hyperparameters.</p>
+<h2 id="optimizers">Optimizers</h2>
+<h3 id="newtons-method-bfgs-lbfgs">Newton's Method, BFGS, LBFGS</h3>
+<p>The core iterative algorithm is:</p>
+<p>$$
+\text{While not converged:}
+$$
+$$
+\theta_t \leftarrow \theta_{t-1} - H^{-1} \times \nabla_\theta J(\theta_{t-1})
+$$</p>
+<p>where $H$ is the Hessian matrix of second derivatives. And convergence is typically defined as when the change in loss or parameters falls below a threshold:
+$$
+|\theta_t - \theta_{t-1}| &lt; \epsilon \quad \text{or} \quad |J(\theta_t) - J(\theta_{t-1})| &lt; \epsilon
+$$</p>
+<p><strong>BFGS (Broyden-Fletcher-Goldfarb-Shanno)</strong> and its <strong>limited-memory variant LBFGS</strong> are <em>quasi-Newton</em> methods that approximate the Hessian matrix to perform optimization without computing second derivatives directly. They build up an approximation of the inverse Hessian using gradient evaluations from previous iterations.</p>
+<h3 id="sgd">SGD</h3>
+<p>Stochastic Gradient Descent (SGD) is the most basic optimizer.</p>
+<p>$$\theta_t \leftarrow \theta_{t-1} - \alpha \times \nabla_\theta J(\theta_t)$$</p>
+<h3 id="momentum">Momentum</h3>
+<p><strong>Momentum</strong>: Exponential moving average of gradients (first moment)</p>
+<p>$$EMA(g) \equiv m_t = \beta_1 × m_{t-1} + (1-\beta_1) × \nabla_\theta J(\theta_t)$$</p>
+<p>$$\theta_t \leftarrow \theta_{t-1} - \alpha \times m_t$$</p>
+<p>Helps smooth out noisy gradients and maintain direction.</p>
+<h3 id="adagrad-2011">AdaGrad (2011)</h3>
+<p>AdaGrad was designed to solve a key problem: different parameters need different learning rates. Some parameters are updated frequently (like common words in NLP), while others are updated rarely (like rare words).</p>
+<ul>
+<li>
+<p>Accumulates the squared gradients:
+$$\nabla J(\theta_t) = \nabla J(\theta_{t-1}) + \nabla J(\theta_{t-1})^2$$</p>
+</li>
+<li>
+<p>Updates parameters:
+$$\theta_t \leftarrow \theta_{t-1} - \frac{\alpha}{\sqrt{\nabla J(\theta_{t-1}) + \varepsilon}} \times \nabla_\theta J(\theta_t)$$</p>
+</li>
+<li>
+<p>Parameters with large accumulated gradients get smaller learning rates, while parameters with small accumulated gradients get larger learning rates.</p>
+</li>
+<li>
+<p><strong>The problem:</strong> $G_t$ (the accumulated squared gradients) only grows (never shrinks), so learning rates become vanishingly small over time. Training effectively stops after a while because the denominator becomes too large.</p>
+</li>
+</ul>
+<h3 id="rmsprop-2012">RMSProp (2012)</h3>
+<p>RMSProp fixed AdaGrad's main weakness by using an exponential moving average instead of accumulating all past gradients.</p>
+<ul>
+<li>Exponential moving average of squared gradients:</li>
+</ul>
+<p>$v_t = \beta_2 × v_{t-1} + (1-\beta_2) × \nabla_\theta J(\theta_t)^2$</p>
+<p>where $v_t$ is the EMA of squared gradients at time step t, and $\beta_2$ (typically 0.9) controls how much history to remember.</p>
+<ul>
+<li>Updates parameters:
+$$\theta_t \leftarrow \theta_{t-1} - \frac{\alpha}{\sqrt{v_t + \varepsilon}} \times \nabla_\theta J(\theta_t)$$</li>
+</ul>
+<p><strong>Key improvement:</strong> The exponential moving average &quot;forgets&quot; old gradients exponentially, preventing the learning rate from shrinking to zero. The β parameter (typically 0.9) controls how much history to remember.</p>
+<p><strong>What it still lacks:</strong> No momentum term to help navigate through local minima and maintain direction.</p>
+<h3 id="adam">Adam</h3>
+<p>Adam combines RMSProp's adaptive learning rates with momentum, creating a more robust optimizer.</p>
+<p><strong>What Adam takes from RMSProp:</strong></p>
+<ul>
+<li>
+<p>Exponential moving average of squared gradients (second moment)</p>
+<p>$$v_t = \beta_2 × v_{t-1} + (1-\beta_2) × \nabla_\theta J(\theta_t)^2$$</p>
+</li>
+<li>
+<p>Adaptive learning rate scaling: dividing by $$\sqrt{v_t}$$</p>
+</li>
+</ul>
+<p><strong>What Adam adds:</strong></p>
+<ul>
+<li><strong>Momentum</strong></li>
+<li><strong>Bias correction</strong>: Both moments are corrected for initialization bias</li>
+</ul>
+<p><strong>AdaGrad</strong> said: &quot;Let's give different learning rates to different parameters based on their history&quot;</p>
+<ul>
+<li>Problem: History accumulates forever, killing learning rates</li>
+</ul>
+<p><strong>RMSProp</strong> said: &quot;Let's use recent history instead of all history&quot;</p>
+<ul>
+<li>Solution: Exponential moving average keeps learning rates alive</li>
+<li>Missing: No momentum to maintain direction</li>
+</ul>
+<p><strong>Adam</strong> said: &quot;Let's combine RMSProp's adaptive rates with momentum&quot;</p>
+<ul>
+<li>Takes RMSProp's v_t for adaptive scaling</li>
+<li>Adds momentum term m_t for directional consistency</li>
+<li>Includes bias correction for better early training</li>
+</ul>
+<h3 id="adamw">AdamW</h3>
+<p>AdamW is a variant of Adam that adds weight decay (L2 regularization) to the optimizer.</p>
+<p>$
+\theta_t \leftarrow \theta_{t-1} - \frac{\alpha}{\sqrt{g^2_t + \varepsilon}} \times m_t - \frac{\alpha}{\beta} \times \theta_{t-1}
+$</p>
+<p>where $g^2_t$ is the EMA of squared gradients, $m_t$ is the EMA of gradients, and $\beta$ is the weight decay coefficient. $\varepsilon$ is a small constant for numerical stability.</p>
+<h3 id="summary">Summary</h3>
+<p>Below, let $g = \nabla_\theta J(\theta_t)$ be the gradient at time step t.</p>
+<p><strong>AdaGrad</strong></p>
+<p>$\theta_t \leftarrow \theta_{t-1} - \frac{\alpha}{\sqrt{\sum g^2}} \times g$</p>
+<p><strong>RMSProp</strong></p>
+<p>$
+\theta_t \leftarrow \theta_{t-1} - \frac{\alpha}{\sqrt{EMA(g^2)}} \times g
+$</p>
+<p><strong>Adam</strong></p>
+<p>$
+\theta_t \leftarrow \theta_{t-1} - \frac{\alpha}{\sqrt{EMA(g^2)}} \times EMA(g)
+$</p>
+<p><strong>AdamW</strong></p>
+<p>$
+\theta_t \leftarrow \theta_{t-1} - \frac{\alpha}{\sqrt{EMA(g^2)}} \times EMA(g) - \frac{\alpha}{\beta} \times \theta_{t-1}
+$</p>
+<h3 id="extra-bits">Extra bits</h3>
+<p>Lookahead optimizer</p>
+<ul>
+<li>slow/fast weight updates for stability.</li>
+</ul>
+<p>Learning rate warmup</p>
+<ul>
+<li>avoids instability at the start.</li>
+</ul>
+<h2 id="learning-rate-schedules">Learning Rate Schedules</h2>
+<p><strong>Step decay:</strong> reduce LR by factor every N epochs.</p>
+<p>$LR_t = LR_0 \times \text{drop}^{\lfloor t / \text{epochs_drop} \rfloor}$</p>
+<p><strong>Exponential decay:</strong> multiply LR by constant factor each epoch.</p>
+<p>$LR_t = LR_0 \times e^{-\lambda t}$</p>
+<p><strong>Linear decay:</strong> decrease LR linearly to zero.
+$LR_t = LR_0 \times (1 - \frac{t}{T})$</p>
+<p><strong>Staircase decay:</strong> reduce LR in discrete steps.</p>
+<p>$LR_t = LR_0 \times \text{drop}^{\lfloor t / \text{epochs_drop} \rfloor}$</p>
+<p><strong>Cyclical LR:</strong> vary LR between bounds cyclically.</p>
+<p>$LR_t = LR_{min} + \frac{1}{2}(LR_{max} - LR_{min})(1 + \sin(\frac{2 \pi t}{T}))$</p>
+<p><strong>Cosine decay schedule:</strong> widely used in vision &amp; transformers.
+$LR_t = LR_{min} + \frac{1}{2}(LR_{max} - LR_{min})(1 + \cos(\frac{t \pi}{T}))$</p>
+<h3 id="in-pytorch">In PyTorch</h3>
+<p>Below is a simple logistic regression training loop with an exponential learning rate scheduler:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">import</span> torch
+<span class="hljs-keyword">import</span> torch.nn <span class="hljs-keyword">as</span> nn
+<span class="hljs-keyword">import</span> torch.optim <span class="hljs-keyword">as</span> optim
+<span class="hljs-keyword">from</span> torch.optim.lr_scheduler <span class="hljs-keyword">import</span> ExponentialLR
+<span class="hljs-keyword">from</span> sklearn.datasets <span class="hljs-keyword">import</span> make_classification
+
+<span class="hljs-comment"># Dummy dataset</span>
+X, y = make_classification(n_samples=<span class="hljs-number">1000</span>, n_features=<span class="hljs-number">10</span>, n_classes=<span class="hljs-number">2</span>)
+X = torch.tensor(X, dtype=torch.float32)
+y = torch.tensor(y, dtype=torch.float32).unsqueeze(<span class="hljs-number">1</span>)
+
+<span class="hljs-comment"># DataLoader</span>
+dataset = torch.utils.data.TensorDataset(X, y)
+dataloader = torch.utils.data.DataLoader(dataset, batch_size=<span class="hljs-number">32</span>, shuffle=<span class="hljs-literal">True</span>)
+
+<span class="hljs-comment"># Simple logistic regression model</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LogisticRegression</span><span class="hljs-params">(nn.Module)</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, input_dim)</span>:</span>
+        super(LogisticRegression, self).__init__()
+        self.linear = nn.Linear(input_dim, <span class="hljs-number">1</span>)
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">forward</span><span class="hljs-params">(self, x)</span>:</span>
+        <span class="hljs-keyword">return</span> torch.sigmoid(self.linear(x))
+
+model = LogisticRegression(input_dim=<span class="hljs-number">10</span>)
+criterion = nn.BCELoss()
+optimizer = optim.SGD(model.parameters(), lr=<span class="hljs-number">0.1</span>)
+scheduler = ExponentialLR(optimizer, gamma=<span class="hljs-number">0.9</span>)  <span class="hljs-comment"># Decay LR by 10% every epoch</span>
+
+<span class="hljs-comment"># Training loop</span>
+num_epochs = <span class="hljs-number">20</span>
+<span class="hljs-keyword">for</span> epoch <span class="hljs-keyword">in</span> range(num_epochs):
+    <span class="hljs-keyword">for</span> inputs, labels <span class="hljs-keyword">in</span> dataloader:
+        optimizer.zero_grad()
+        outputs = model(inputs)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+    scheduler.step()  <span class="hljs-comment"># Update learning rate</span>
+    print(<span class="hljs-string">f'Epoch <span class="hljs-subst">{epoch+<span class="hljs-number">1</span>}</span>, Loss: <span class="hljs-subst">{loss.item()}</span>, LR: <span class="hljs-subst">{scheduler.get_last_lr()[<span class="hljs-number">0</span>]}</span>'</span>)
+</div></code></pre>
+<h3 id="one-cycle-policy">One-cycle policy</h3>
+<ul>
+<li>cyclical LR with momentum scheduling.</li>
+</ul>
+<h2 id="gradient-clipping">Gradient clipping</h2>
+<ul>
+<li>
+<p>Avoid exploding gradients.</p>
+</li>
+<li>
+<p>Adaptive gradient clipping scales clipping by norm.</p>
+</li>
+</ul>
+<h2 id="references">References</h2>
+<ul>
+<li>https://docs.pytorch.org/docs/stable/generated/torch.nn.L1Loss.html#torch.nn.L1Loss</li>
+<li>https://docs.pytorch.org/docs/stable/generated/torch.nn.MSELoss.html#torch.nn.MSELoss</li>
+<li>https://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html#torch.nn.CrossEntropyLoss</li>
+<li>https://docs.pytorch.org/docs/stable/generated/torch.nn.NLLLoss.html#torch.nn.NLLLoss</li>
+<li>https://docs.pytorch.org/docs/stable/generated/torch.nn.BCELoss.html#torch.nn.BCELoss</li>
+<li>https://docs.pytorch.org/docs/stable/generated/torch.nn.HuberLoss.html#torch.nn.HuberLoss</li>
+</ul>
+
+</body>
+</html>

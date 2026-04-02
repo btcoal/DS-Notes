@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>inference-optimization.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="deployment--inference-optimization">Deployment &amp; Inference Optimization</h1>
+<ul>
+<li>
+<p>Quantization – int8/bfloat16 inference.</p>
+</li>
+<li>
+<p>Low-rank adaptation – LoRA for efficient fine-tuning and inference.</p>
+</li>
+<li>
+<p>Pruning – structured vs unstructured.</p>
+</li>
+<li>
+<p>Knowledge distillation – student-teacher training.</p>
+</li>
+<li>
+<p>Batching strategies for inference – microbatching, dynamic batching for latency-sensitive endpoints</p>
+</li>
+<li>
+<p>Early exit models – stopping inference when confident.</p>
+</li>
+</ul>
+<h2 id="how-inference-works">How Inference Works</h2>
+<p>how LLMs actually generate text. The process can be broken down into two main phases: prefill and decode. These phases work together like an assembly line, each playing a crucial role in producing coherent text.</p>
+<p><strong>Prefill phase</strong> is like the preparation stage in cooking - it’s where all the initial ingredients are processed and made ready.</p>
+<ul>
+<li>
+<p>Tokenization: Converting the input text into tokens (think of these as the basic building blocks the model understands)</p>
+</li>
+<li>
+<p>Embedding Conversion: Transforming these tokens into numerical representations that capture their meaning</p>
+</li>
+<li>
+<p>Initial Processing: Running these embeddings through the model’s neural networks to create a rich understanding of the context</p>
+</li>
+</ul>
+<p>This phase is computationally intensive because it needs to process all input tokens at once.</p>
+<p><strong>The Decode Phase.</strong> The model generates one token at a time in what we call an autoregressive process (where each new token depends on all previous tokens).</p>
+<ul>
+<li>
+<p>Attention Computation: Looking back at all previous tokens to understand context</p>
+</li>
+<li>
+<p>Probability Calculation: Determining the likelihood of each possible next token</p>
+</li>
+<li>
+<p>Token Selection: Choosing the next token based on these probabilities</p>
+</li>
+<li>
+<p>Continuation Check: Deciding whether to continue or stop generation</p>
+</li>
+</ul>
+<p>This phase is memory-intensive because the model needs to keep track of all previously generated tokens and their relationships.</p>
+<p><strong>Managing Repetition</strong> One common challenge with LLMs is their tendency to repeat themselves - much like a speaker who keeps returning to the same points. To address this, we use two types of penalties:</p>
+<ul>
+<li>
+<p>Presence Penalty: A fixed penalty applied to any token that has appeared before, regardless of how often. This helps prevent the model from reusing the same words.</p>
+</li>
+<li>
+<p>Frequency Penalty: A scaling penalty that increases based on how often a token has been used. The more a word appears, the less likely it is to be chosen again.</p>
+</li>
+</ul>
+<p>These penalties are applied early in the token selection process, adjusting the raw probabilities before other sampling strategies are applied. Think of them as gentle nudges encouraging the model to explore new vocabulary.</p>
+<p><strong>Temperature Control</strong>: Like a creativity dial - higher settings (&gt;1.0) make choices more random and creative, lower settings (&lt;1.0) make them more focused and deterministic. This is done by scaling the logits (raw scores) before applying the softmax function to get probabilities:
+$$
+P(x_i) = \frac{e^{(p_i / \tau)}}{\sum_{j} e^{(p_j / \tau)}}
+$$
+Where $p_i$ is the logit for token $i$ and $\tau$ is the temperature. A higher temperature flattens the distribution, making less likely tokens more probable, while a lower temperature sharpens it, favoring the most likely tokens.</p>
+<p><strong>Filtering Strategies</strong></p>
+<ul>
+<li>Top-p (Nucleus) Sampling: Instead of considering all possible words, we only look at the most likely ones that add up to our chosen probability threshold (e.g., top 90%)</li>
+</ul>
+<p><em>OR</em></p>
+<ul>
+<li>Top-k Filtering: An alternative approach where we only consider the k most likely next words</li>
+</ul>
+<p><strong>Controlling Generation Length</strong></p>
+<ul>
+<li>
+<p>Token Limits: Setting minimum and maximum token counts</p>
+</li>
+<li>
+<p>Stop Sequences: Defining specific patterns that signal the end of generation</p>
+</li>
+<li>
+<p>End-of-Sequence Detection: Letting the model naturally conclude its response</p>
+</li>
+</ul>
+<p>For example, if we want to generate a single paragraph, we might set a maximum of 100 tokens and use “\n\n” as a stop sequence.</p>
+<h3 id="beam-search">Beam Search</h3>
+<p><img src="./images/beam-search.png" alt="Beam Search Illustration"></p>
+<p>While the strategies we’ve discussed so far make decisions one token at a time, beam search takes a more holistic approach. Instead of committing to a single choice at each step, it explores multiple possible paths simultaneously - like a chess player thinking several moves ahead.</p>
+<ol>
+<li>At each step, maintain multiple candidate sequences (typically 5-10)</li>
+<li>For each candidate, compute probabilities for the next token</li>
+<li>Keep only the most promising combinations of sequences and next tokens</li>
+<li>Continue this process until reaching the desired length or stop condition</li>
+<li>Select the sequence with the highest overall probability</li>
+</ol>
+<h2 id="tools">Tools</h2>
+<ul>
+<li><a href="https://huggingface.co/docs/bitsandbytes/main/en/index">bitsandbytes</a></li>
+<li>Triton</li>
+<li>TensorRT</li>
+</ul>
+<h3 id="flashattention-and-flashattention2">FlashAttention and FlashAttention2</h3>
+<p>FlashAttention is an optimized attention mechanism designed to improve the efficiency of transformer models during inference and training. Traditional attention mechanisms can be memory-intensive and slow, especially for long sequences, due to the quadratic complexity of computing attention scores. FlashAttention addresses these challenges by implementing a more memory-efficient algorithm that reduces the amount of data that needs to be stored in memory at any given time.</p>
+<p>FlashAttention achieves its efficiency through several key techniques:</p>
+<ol>
+<li>Memory-Efficient Computation: It computes attention scores in a way that minimizes memory usage, allowing for larger batch sizes and longer sequences without running out of memory.</li>
+<li>Kernel Fusion: By combining multiple operations into a single kernel, FlashAttention reduces the overhead associated with launching multiple GPU kernels, leading to faster execution.</li>
+<li>Reduced Precision: FlashAttention can leverage lower-precision arithmetic (e.g., FP16) to speed up computations while maintaining acceptable accuracy.</li>
+</ol>
+<p><img src="./images/flash-attn.png" alt="Flash Attention Diagram"></p>
+<p>FlashAttention2 builds upon the original FlashAttention by further optimizing the attention computation process. It introduces additional improvements such as better handling of variable-length sequences and enhanced support for different hardware architectures.</p>
+<p>FlashAttention2 also incorporates more advanced techniques for reducing memory bandwidth usage, which is often a bottleneck in high-performance computing.</p>
+<p><strong>Text Generation Inference (TGI)</strong> is designed to be stable and predictable in production, using fixed sequence lengths to keep memory usage consistent. TGI manages memory using Flash Attention 2 and continuous batching techniques. This means it can process attention calculations very efficiently and keep the GPU busy by constantly feeding it work. The system can move parts of the model between CPU and GPU when needed, which helps handle larger models.</p>
+<h3 id="llamacpp">llama.cpp</h3>
+<p>llama.cpp is a highly optimized C/C++ implementation originally designed for running LLaMA models on consumer hardware. It focuses on CPU efficiency with optional GPU acceleration and is ideal for resource-constrained environments. llama.cpp uses quantization techniques to reduce model size and memory requirements while maintaining good performance. It implements optimized kernels for various CPU architectures and supports basic KV cache management for efficient token generation.</p>
+<p>Quantization in llama.cpp reduces the precision of model weights from 32-bit or 16-bit floating point to lower precision formats like 8-bit integers (INT8), 4-bit, or even lower. This significantly reduces memory usage and improves inference speed with minimal quality loss.</p>
+<p>Key quantization features in llama.cpp include:</p>
+<ul>
+<li>Multiple Quantization Levels: Supports 8-bit, 4-bit, 3-bit, and even 2-bit quantization</li>
+</ul>
+<p>GGML/GGUF Format: Uses custom tensor formats optimized for quantized inference</p>
+<ul>
+<li>
+<p>Mixed Precision: Can apply different quantization levels to different parts of the model</p>
+</li>
+<li>
+<p>Hardware-Specific Optimizations: Includes optimized code paths for various CPU architectures (AVX2, AVX-512, NEON)</p>
+</li>
+</ul>
+<p>This approach enables running billion-parameter models on consumer hardware with limited memory, making it perfect for local deployments and edge devices.</p>
+<h3 id="vllm">vLLM</h3>
+<p>vLLM takes a different approach by using PagedAttention. Just like how a computer manages its memory in pages, vLLM splits the model’s memory into smaller blocks. This clever system means it can handle different-sized requests more flexibly and doesn’t waste memory space. It’s particularly good at sharing memory between different requests and reduces memory fragmentation, which makes the whole system more efficient.</p>
+<p>PagedAttention is a technique that addresses another critical bottleneck in LLM inference: KV cache memory management. During text generation, the model stores attention keys and values (KV cache) for each generated token to reduce redundant computations. The KV cache can become enormous, especially with long sequences or multiple concurrent requests.</p>
+<p>vLLM’s key innovation lies in how it manages this cache:</p>
+<ol>
+<li>Memory Paging: Instead of treating the KV cache as one large block, it’s divided into fixed-size “pages” (similar to virtual memory in operating systems).</li>
+<li>Non-contiguous Storage: Pages don’t need to be stored contiguously in GPU memory, allowing for more flexible memory allocation.</li>
+<li>Page Table Management: A page table tracks which pages belong to which sequence, enabling efficient lookup and access.</li>
+<li>Memory Sharing: For operations like parallel sampling, pages storing the KV cache for the prompt can be shared across multiple sequences.</li>
+</ol>
+<p>The PagedAttention approach can lead to up to 24x higher throughput compared to traditional methods, making it a game-changer for production LLM deployments.</p>
+<h3 id="onnx--torchscript-export-%E2%80%93-framework-agnostic-inference">ONNX / TorchScript export – framework-agnostic inference.</h3>
+<p>Open Neural Network Exchange (ONNX) and TorchScript are two popular formats for exporting machine learning models to enable framework-agnostic inference.</p>
+<h2 id="measuring-inference-efficiency">Measuring Inference Efficiency</h2>
+<p>When evaluating the efficiency of LLM inference, consider the following metrics:</p>
+<ul>
+<li>Latency: The time it takes to generate a response, typically measured in milliseconds. Lower latency is crucial for real-time applications.</li>
+<li>Throughput: The number of requests the model can handle per second. Higher throughput indicates better efficiency, especially for batch processing.</li>
+<li>RTFx: Real-Time Factor (RTF) measures how quickly a model generates text relative to real-time. An RTF of 1 means the model generates text at the same speed as a human speaks, while an RTF less than 1 indicates faster-than-real-time generation.</li>
+<li>Resource Utilization: Monitor CPU, GPU, and memory usage during inference. Efficient models should maximize performance while minimizing resource consumption.</li>
+<li>Cost Efficiency: Calculate the cost per inference request, factoring in cloud compute costs. More efficient models should deliver lower costs for the same performance level.</li>
+<li>Scalability: Assess how well the model performs as the number of concurrent requests increases. Efficient models should maintain performance under load.</li>
+<li>Energy Consumption: Measure the power usage during inference. Lower energy consumption is beneficial for both cost savings and environmental impact.</li>
+<li>Time-to-First Token (TTFT): The time taken from receiving a request to generating the first token. This is particularly important for user-facing applications where responsiveness is key.</li>
+</ul>
+<h2 id="kv-caching">KV Caching</h2>
+<h2 id="references">References</h2>
+<ul>
+<li>
+<p>https://huggingface.co/learn/llm-course/chapter1/8</p>
+</li>
+<li>
+<p>https://magazine.sebastianraschka.com/p/coding-the-kv-cache-in-llms</p>
+</li>
+<li>
+<p>https://docs.vllm.ai/en/latest/contributing/</p>
+</li>
+<li>
+<p>https://huggingface.co/learn/llm-course/chapter2/8</p>
+</li>
+</ul>
+
+</body>
+</html>

@@ -1,0 +1,322 @@
+
+<style>
+  :root { --tab-active: var(--color-text-primary); }
+  * { box-sizing: border-box; }
+  .container { padding: 1.5rem 0; max-width: 680px; }
+  .header { margin-bottom: 1.5rem; }
+  .header h1 { font-size: 22px; font-weight: 500; margin: 0 0 4px; }
+  .header p { font-size: 14px; color: var(--color-text-secondary); margin: 0; }
+  .tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 1.5rem; overflow-x: auto; }
+  .tab { padding: 8px 16px; font-size: 13px; color: var(--color-text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -0.5px; white-space: nowrap; transition: color .15s, border-color .15s; background: none; border-top: none; border-left: none; border-right: none; }
+  .tab.active { color: var(--color-text-primary); border-bottom-color: var(--color-text-primary); font-weight: 500; }
+  .tab:hover:not(.active) { color: var(--color-text-primary); }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .section-label { font-size: 11px; font-weight: 500; letter-spacing: .06em; color: var(--color-text-tertiary); text-transform: uppercase; margin: 0 0 10px; }
+  .qa-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); margin-bottom: 10px; overflow: hidden; }
+  .qa-q { padding: 14px 16px; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; background: var(--color-background-primary); }
+  .qa-q:hover { background: var(--color-background-secondary); }
+  .qa-q .chevron { font-size: 12px; color: var(--color-text-tertiary); margin-top: 2px; flex-shrink: 0; transition: transform .2s; }
+  .qa-a { display: none; padding: 0 16px 14px; font-size: 13px; line-height: 1.7; color: var(--color-text-secondary); border-top: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+  .qa-a.open { display: block; }
+  .qa-card.open .chevron { transform: rotate(180deg); }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; margin-right: 6px; margin-bottom: 4px; }
+  .badge-blue { background: var(--color-background-info); color: var(--color-text-info); }
+  .badge-amber { background: var(--color-background-warning); color: var(--color-text-warning); }
+  .badge-green { background: var(--color-background-success); color: var(--color-text-success); }
+  .badge-red { background: var(--color-background-danger); color: var(--color-text-danger); }
+  .concept-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; margin-bottom: 10px; background: var(--color-background-primary); }
+  .concept-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+  .concept-body { font-size: 13px; line-height: 1.7; color: var(--color-text-secondary); }
+  .concept-body ul { margin: 6px 0 0; padding-left: 18px; }
+  .concept-body li { margin-bottom: 4px; }
+  .concept-body code { font-family: var(--font-mono); font-size: 12px; background: var(--color-background-tertiary); padding: 1px 5px; border-radius: 4px; }
+  .tip-box { border-left: 3px solid var(--color-border-info); padding: 10px 14px; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; background: var(--color-background-info); margin-bottom: 10px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+  .group-label { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 1.25rem 0 8px; }
+</style>
+
+<div class="container">
+  <div class="header">
+    <h1>Waymo interview prep</h1>
+    <p>Planner Evaluation — Data Scientist / MLE track</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('questions')">Interview questions</button>
+    <button class="tab" onclick="switchTab('concepts')">Technical concepts</button>
+    <button class="tab" onclick="switchTab('tips')">Strategy & tips</button>
+  </div>
+
+  <!-- QUESTIONS PANEL -->
+  <div class="panel active" id="panel-questions">
+
+    <div class="group-label">Metrics design & validation</div>
+    <div class="section-label">Core to the role</div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-q">How would you design a metric to measure the safety of an autonomous vehicle's planner? <span class="chevron">▼</span></div>
+      <div class="qa-a">
+        <span class="badge badge-blue">Metrics</span><span class="badge badge-green">DS</span>
+        <br>Frame your answer around: (1) defining what "safe" means operationally (e.g. comfortable following distance, proper yielding, collision avoidance), (2) distinguishing leading vs lagging indicators — collisions are rare ground truth but you need proxy metrics that correlate, (3) data sources (simulation vs real-world logs), (4) edge case coverage (novel scenarios, new territories, new vehicle platforms). Mention desirable metric properties: sensitivity to real degradations, robustness to noise, interpretability for stakeholders, and being <em>actionable</em> — can you trace a metric change back to a software change? Bonus: discuss the challenge of distributional shift when expanding to new geographies.
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-q">How do you validate that a metric is actually measuring what you think it's measuring? <span class="chevron">▼</span></div>
+      <div class="qa-a">
+        <span class="badge badge-blue">Validation</span><span class="badge badge-green">DS</span>
+        <br>Key angles: construct validity (does the metric correlate with ground truth outcomes?), sensitivity testing (inject known-bad behaviors into simulation, does the metric detect them?), face validity (do domain experts agree it captures the right thing?), and stability over time (does metric drift in a stationary environment?). A strong answer also covers discrimination: can the metric distinguish between two software versions that differ in the relevant behavior? Mention the risk of Goodhart's Law — metrics that become targets get gamed, so watch for overfitting the planner to a metric.
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-q">A metric has been in use for 2 years. Engineers are questioning whether it still reflects real-world safety. Walk me through how you'd audit it. <span class="chevron">▼</span></div>
+      <div class="qa-a">
+        <span class="badge badge-blue">Metrics</span><span class="badge badge-amber">Stakeholders</span>
+        <br>Structure your answer: (1) gather use-case inventory — who uses it and for what decisions? (2) compare metric values against known-good and known-bad software versions to check discrimination power, (3) analyze metric over time — did it change with product launches or geography expansions?, (4) check for correlation decay with downstream outcomes (incidents, disengagements), (5) interview stakeholders on edge cases where metric didn't catch issues. Conclude by recommending either a metric refresh, a complementary metric, or a deprecated replacement with a migration plan.
+      </div>
+    </div>
+
+    <div class="group-label">A/B testing & experimentation</div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-q">How would you design an A/B test to evaluate two versions of a planning algorithm? What are the specific challenges vs. a typical web A/B test? <span class="chevron">▼</span></div>
+      <div class="qa-a">
+        <span class="badge badge-blue">A/B Testing</span><span class="badge badge-green">Stats</span>
+        <br>Key differences from web experiments: (1) <em>unit of randomization</em> — trips/routes rather than users; trips are not i.i.d. (same route driven repeatedly, same environmental conditions), (2) <em>rare events</em> — safety-critical events are very low frequency, so standard t-tests may be underpowered; consider non-parametric methods or time-to-event analysis, (3) <em>simulation vs real-world</em> — simulation allows controlled, large-scale testing but may have sim-to-real gap, (4) <em>novelty effects</em> — software changes can have latent effects over time as the car learns or environment changes, (5) <em>interference</em> — vehicles on the same road can influence each other, violating SUTVA. Discuss how you'd handle these with e.g. stratified randomization by route type, clustered standard errors, or pre-registered metrics.
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-q">How do you determine the minimum detectable effect for a safety experiment, and how does that affect your test design? <span class="chevron">▼</span></div>
+      <div class="qa-a">
+        <span class="badge badge-blue">Statistics</span><span class="badge badge-green">Experimentation</span>
+        <br>Walk through: (1) define the target effect size — what delta in the metric is operationally meaningful (e.g. 5% improvement in a comfort metric vs 0.1% in a collision-adjacent metric)?, (2) estimate baseline variance from historical data — high variance → larger sample needed, (3) use power analysis (e.g. <code>statsmodels.stats.power</code>) to compute required sample size given desired α and β, (4) discuss trade-offs: rarer events need more data, so you may need to run longer or rely more on simulation, (5) be explicit about multiple comparisons — with many safety metrics tested simultaneously, adjust α (Bonferroni, BH correction). Strong answer: bring up sequential testing / early stopping and when it's appropriate in safety contexts.
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-q">The A/B test result is statistically significant but the effect size is very small. How do you advise stakeholders on whether to ship? <span class="chevron">▼</span></div>
+      <div class="qa-a">
+        <span class="badge badge-amber">Stakeholders</span><span class="badge badge-blue">Statistics</span>
+        <br>Distinguish statistical significance from practical significance. Frame your advice around: (1) what does the effect size mean operationally — in safety, even tiny improvements at scale compound significantly, (2) cost of shipping vs. cost of not shipping — what's the downside if the improvement is a false positive?, (3) is the improvement consistent across subgroups (urban/highway, new territories, edge cases)?, (4) consider the opportunity cost — does this version block better alternatives? Recommend a framework: ship only if the effect is consistent across segments, the downside risk is bounded, and the metric aligns with what stakeholders actually care about.
+      </div>
+    </div>
+
+    <div class="group-label">Data & coding</div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-q">Describe how you'd use simulation data to build a training dataset for a metric validation model. <span class="chevron">▼</span></div>
+      <div class="qa-a">
+        <span class="badge badge-green">ML</span><span class="badge badge-blue">Data</span>
+        <br>Cover: (1) scenario generation — parameterize simulation to produce diverse, labeled behaviors (e.g. unsafe lane changes, unsafe following distances) at scale, (2) label quality — simulation labels are ground truth but may not generalize; discuss sim-to-real gap mitigation (domain randomization, learned sim calibration), (3) dataset balance — rare safety events need oversampling or synthetic augmentation, (4) feature engineering from raw sensor/state data, (5) validation strategy — hold out real-world examples as an out-of-distribution test set to catch sim-to-real failures. Mention that the metric should be evaluated on real-world logs even if trained/developed in simulation.
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-q">Walk me through how you'd write a SQL query to compute a safety metric (e.g. average minimum following distance) aggregated by trip and scenario type. <span class="chevron">▼</span></div>
+      <div class="qa-a">
+        <span class="badge badge-blue">SQL</span><span class="badge badge-green">Data</span>
+        <br>Show structured thinking: (1) identify the granularity of raw data (per-frame sensor readings), (2) compute per-trip minimum via <code>MIN(following_distance)</code> with a <code>GROUP BY trip_id</code>, (3) join with a scenario metadata table for scenario type, (4) aggregate across trips with <code>AVG</code> and percentiles (<code>PERCENTILE_CONT</code>), (5) handle NULLs and filter for valid frames only. Mention window functions if computing rolling stats (e.g. 5-second rolling min). Good signal: awareness of query performance — partitioning large log tables by date, using approximate quantile functions for very large datasets.
+      </div>
+    </div>
+
+    <div class="group-label">Stakeholder & ambiguity</div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-q">Different teams interpret the same safety metric differently and are making conflicting decisions. How do you resolve this? <span class="chevron">▼</span></div>
+      <div class="qa-a">
+        <span class="badge badge-amber">Stakeholders</span><span class="badge badge-blue">Communication</span>
+        <br>This tests your ability to align cross-functional stakeholders. Key moves: (1) run a use-case inventory — understand each team's interpretation and decision context, (2) identify the root cause — is it a definition ambiguity, a data pipeline difference, or a genuine disagreement about what matters?, (3) propose a shared definition document with examples of edge cases and how they're handled, (4) if stakeholders have legitimately different needs, advocate for purpose-built metrics for each use case rather than overloading a single metric, (5) get alignment in writing before making changes. Show that you default to structured clarity over informal consensus.
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-q">You're asked to add support for a new geographic territory to an existing safety metric. What's your process? <span class="chevron">▼</span></div>
+      <div class="qa-a">
+        <span class="badge badge-blue">Metrics</span><span class="badge badge-amber">Scope</span>
+        <br>Think through: (1) understand what's different — local traffic norms, road infrastructure, speed limits, regulatory definitions of safe behavior, (2) review whether existing metric definitions are territory-agnostic or embed implicit assumptions (e.g. U.S. following distance norms), (3) collect exploratory data from the new territory, run the existing metric, and check for anomalies, (4) work with domain experts (local operations, safety engineers) to validate whether anomalies reflect true differences or metric failures, (5) update metric logic with territory-conditional handling or create a calibration layer, (6) re-run validation suite with territory-stratified examples.
+      </div>
+    </div>
+  </div>
+
+  <!-- CONCEPTS PANEL -->
+  <div class="panel" id="panel-concepts">
+
+    <div class="group-label">Statistics & experimentation</div>
+
+    <div class="concept-card">
+      <div class="concept-title">Statistical power & sample size</div>
+      <div class="concept-body">
+        Power = P(reject H₀ | H₁ true) = 1 − β. Determined by effect size, variance, sample size, and α. In AV evaluation: events like disengagements are rare (low base rate), so you need large sample sizes or must rely on proxy metrics with higher frequency.
+        <ul>
+          <li>MDE (minimum detectable effect) = smallest effect you're powered to detect at given α, β</li>
+          <li>For proportions: <code>n ≈ 2(z_α + z_β)² × p(1−p) / δ²</code></li>
+          <li>For rare events: consider negative binomial or Poisson regression instead of t-tests</li>
+          <li>Sequential testing (e.g. SPRT) for early stopping without inflating type I error</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-title">Causal inference & A/B test validity</div>
+      <div class="concept-body">
+        Clean A/B tests require: randomization (assignment independent of potential outcomes), SUTVA (no spillover between units), and balance (comparable groups). In AV:
+        <ul>
+          <li>Units are trips, not users — trips on same road may interfere (SUTVA violation)</li>
+          <li>Stratify on route type, time-of-day, weather to reduce variance</li>
+          <li>Simpson's Paradox: aggregate metrics can reverse when conditioned on confounders (e.g. new territory)  </li>
+          <li>Difference-in-differences if you can't fully randomize (e.g. city-level rollout)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-title">Multiple comparisons correction</div>
+      <div class="concept-body">
+        When testing many metrics simultaneously, familywise error rate inflates. Key methods:
+        <ul>
+          <li>Bonferroni: α/m — conservative, controls FWER</li>
+          <li>Benjamini-Hochberg: controls FDR (false discovery rate) — less conservative, preferred when many hypotheses</li>
+          <li>Pre-registration: declare primary metric before seeing data to avoid p-hacking</li>
+          <li>Hierarchy: designate one primary safety metric, treat others as secondary/exploratory</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="group-label">Metrics & measurement</div>
+
+    <div class="concept-card">
+      <div class="concept-title">Metric properties to know cold</div>
+      <div class="concept-body">
+        A good metric is: sensitive (detects real changes), specific (doesn't fire on irrelevant changes), reliable (low noise in stable conditions), valid (measures what it claims), and actionable (traceable to a root cause). In safety:
+        <ul>
+          <li>Lagging indicators: actual collisions, disengagements — rare but high-stakes ground truth</li>
+          <li>Leading indicators: following distance, speed vs limit, yield compliance — frequent, proxy for safety</li>
+          <li>Goodhart's Law: when a measure becomes a target, it ceases to be a good measure — watch for planner overfitting to metrics</li>
+          <li>Distributional robustness: metric should behave consistently across scenario types, geographies</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-title">Simulation vs. real-world evaluation</div>
+      <div class="concept-body">
+        Simulation: fast, controllable, scalable, labeled — but suffers sim-to-real gap (physics approximations, missing long-tail scenarios). Real-world: ground truth but expensive, slow, safety-constrained.
+        <ul>
+          <li>Sim-to-real gap: validate sim metrics against real-world logs — do they correlate?</li>
+          <li>Scenario mining: extract interesting real-world clips and replay in simulation for faster iteration</li>
+          <li>Adversarial simulation: parameterically generate hard scenarios to stress-test the planner</li>
+          <li>Log replay (closed-loop vs open-loop): open-loop replays historical sensor data; closed-loop allows planner to take different actions and sim reacts</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="group-label">ML & data engineering</div>
+
+    <div class="concept-card">
+      <div class="concept-title">Imbalanced datasets & rare event modeling</div>
+      <div class="concept-body">
+        Safety-critical events are rare. Techniques:
+        <ul>
+          <li>Oversampling (SMOTE) or undersampling majority class</li>
+          <li>Class-weighted loss functions in training</li>
+          <li>Precision-recall AUC more informative than ROC-AUC for rare events</li>
+          <li>Threshold calibration: optimize threshold on held-out set using F-beta (weight recall if false negatives are costly)</li>
+          <li>Anomaly detection framing: train on normal behavior, flag deviations</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-title">Feature engineering for driving behavior</div>
+      <div class="concept-body">
+        Raw data: per-frame states (position, velocity, heading, sensor readings). Useful features:
+        <ul>
+          <li>Time-to-collision (TTC), time headway, post-encroachment time</li>
+          <li>Jerk (derivative of acceleration) — proxy for comfort/aggression</li>
+          <li>Trajectory smoothness (curvature, deviation from planned path)</li>
+          <li>Contextual features: road type, speed limit, number of nearby agents</li>
+          <li>Rolling statistics: 5s / 30s windows of min/max/mean of above</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-title">SQL patterns for large-scale log analysis</div>
+      <div class="concept-body">
+        Key patterns for AV data:
+        <ul>
+          <li>Window functions: <code>MIN(dist) OVER (PARTITION BY trip_id ORDER BY frame_ts ROWS BETWEEN 5 PRECEDING AND CURRENT ROW)</code></li>
+          <li>Percentile aggregations: <code>PERCENTILE_CONT(0.05) WITHIN GROUP (ORDER BY metric)</code> — P5 of following distance</li>
+          <li>Approximate quantiles: <code>APPROX_QUANTILES(val, 100)[OFFSET(5)]</code> in BigQuery for scale</li>
+          <li>Sessionization: use <code>LAG</code> and timestamp deltas to define trip segments</li>
+          <li>Join optimization: partition logs by date, prune early</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIPS PANEL -->
+  <div class="panel" id="panel-tips">
+
+    <div class="tip-box">
+      <strong>Core theme to weave throughout:</strong> This role sits at the intersection of rigorous statistics, product judgment, and stakeholder influence. Show that you can translate ambiguous business needs into precise metric definitions — and back again.
+    </div>
+
+    <div class="group-label">How to frame answers</div>
+
+    <div class="concept-card">
+      <div class="concept-title">For metrics questions</div>
+      <div class="concept-body">Always start with "what decision is this metric meant to support?" — this shows product thinking. Then cover data source → definition → validation → stakeholder alignment → limitations. Mention scalability to new territories/platforms unprompted — it's in the JD.</div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-title">For A/B test questions</div>
+      <div class="concept-body">Lead with the unique challenges of AV experimentation (rare events, interference, sim-to-real gap) before going to general statistical machinery. Waymo interviewers will notice if you just recite web A/B test methodology without adapting it.</div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-title">For ambiguous / stakeholder questions</div>
+      <div class="concept-body">Show a structured process: (1) clarify the use case, (2) gather data / understand the disagreement, (3) propose a framework, (4) get alignment in writing. Don't jump to solutions. Interviewers at this level are testing whether you slow down when things are uncertain.</div>
+    </div>
+
+    <div class="group-label">Things to prepare in advance</div>
+
+    <div class="concept-card">
+      <div class="concept-title">2–3 STAR stories ready to go</div>
+      <div class="concept-body">Prepare examples for: (1) designing or owning a metric end-to-end, (2) running an experiment with a tricky methodological challenge, (3) influencing a cross-functional stakeholder decision with data. Waymo will ask behavioral questions — have these ready with concrete numbers.</div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-title">Know the Waymo product context</div>
+      <div class="concept-body">Waymo One (SF/Phoenix/Austin rides), Waymo Via (trucking), the Jaguar I-PACE and Zeekr fleet. Understand that the Planner is the component responsible for motion planning — deciding how the car moves. Knowing this helps you speak concretely about what "evaluating the planner" means.</div>
+    </div>
+
+    <div class="concept-card">
+      <div class="concept-title">Questions to ask your interviewers</div>
+      <div class="concept-body">
+        <ul>
+          <li>How does the team prioritize which metrics to improve vs. which to sunset?</li>
+          <li>How tightly coupled is metric development to the ML research team vs. the safety team?</li>
+          <li>What does the feedback loop look like between a metric change and a planner software release?</li>
+          <li>How does the team handle metric disagreements between city deployments?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+function toggleQA(card) {
+  const isOpen = card.classList.contains('open');
+  card.classList.toggle('open', !isOpen);
+  card.querySelector('.qa-a').classList.toggle('open', !isOpen);
+}
+</script>

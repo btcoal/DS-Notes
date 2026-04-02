@@ -5,7 +5,6 @@
 - [Logistic Regression](logistic-regression.md)
 - [Performance Metrics](performance-metrics.md)
 - [Modeling](ml-modeling.md)
-- [Loss Functions](loss-functions.md)
 - [Regularization](regularization.md)
 - [Time Series Forecasting](time-series.md)
 - [Experimentation and A/B Testing](experimentation.md)
