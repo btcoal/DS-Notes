@@ -30,6 +30,12 @@ August 31, 2021
 * Kwiatkowski-Phillips-Schmidt-Shin (KPSS) Test
 * Phillips-Perron (PP) Test
 
+## Measuring Association and Causality
+
+* Regressing one non-stationary series on another can produce *spurious regressions*--high $R^2$, significant t-stats, but no real relationship. **WHY?**
+
+* Engel-Granger 2 Step Procedure
+
 ## Auto-Regressive Integrated Moving Average (ARIMA)
 Model $y_t$ as a function of its own past values and past errors:
 $$
