@@ -1,5 +1,8 @@
 # Agentic AI Systems
- 
+
+## Validation and Reliability
+* See [AI_Validity_and_Reliability.md](../research/ai_reliability_and_validity/AI_Validity_and_Reliability.md)
+
 ## Agents
 
 ### Tool Use

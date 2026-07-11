@@ -3,19 +3,16 @@
 ## S Tier
 
 - [Logistic Regression](logistic-regression.md)
+- [Resampling Methods](resampling-methods.md)
 - [Performance Metrics](performance-metrics.md)
 - [Modeling](ml-modeling.md)
 - [Regularization](regularization.md)
 - [Time Series Forecasting](time-series.md)
-- [Experimentation and A/B Testing](experimentation.md)
-- [Pytorch](pytorch.md)
+- [Experimentation and Causal Inference](experimentation.md)
 - [Distance Metrics](distance-metrics.md)
 - [Distributions](distributions.md)
 - [Ensemble Methods](ensemble-methods.md)
-- [Resampling Methods](resampling-methods.md)
 - [Applied LLMs](applied-llms.md)
-- [ViTs](vits.md)
-
 
 ## A Tier
 - [Missing Data Imputation](missing-data-imputation.md)
@@ -23,15 +20,14 @@
 - [Clustering](clustering.md)
 - [Generalized Linear Models](glms.md)
 
-
 ## B Tier
 - [Anomaly Detection](anomaly-detection.md)
 - [Vision-Language Models](vision-language-models.md)
 - [tokenization](tokenization.md)
+- [Pytorch](pytorch.md)
 
 ## C Tier
 - [Representation Learning](representation-learning.md)
-- [Beam Search](beam-search.md)
 
 ## D Tier
 - [Flow Matching](flow-matching.md)

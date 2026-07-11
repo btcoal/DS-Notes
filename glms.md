@@ -113,6 +113,16 @@ Everything reduces to the behavior of ( (X^\top X)^{-1} X^\top \varepsilon ).
 Exogeneity ensures its expectation goes to zero and its sample analog vanishes asymptotically. When that fails, the term converges to a nonzero limit, which is exactly the source of bias and inconsistency.
 
 
+### Regression Diagnostics
+
+### Regression with and without an intercept
+
+* Regression without an intercept corresponds to a model that passes through the origin.
+* Regression with an intercept corresponds to a model that does not pass through the origin.
+* The sum of the residuals in a regression without an intercept is not necessarily zero
+* The sum of the residuals in a regression with an intercept is necessarily zero
+* R-squared is in general larger without an intercept because...
+
 ## Colinearity
 
 ### Variance Inflation Factor (VIF)
@@ -136,10 +146,19 @@ $$
 
 ## Causal Inference with Linear Models
 
+### Panel Data Models
 * Fixed effects
 * Random Effects Models
 * Mixed Effects Models
 * Bayesian Hierarchical Models
+
+## Probit, Logit, and other link functions
+
+### Probit
+
+### Logit and Logistic Regression
+
+### Other link functions
 
 ## Questions
 

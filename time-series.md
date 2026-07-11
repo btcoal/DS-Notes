@@ -1,25 +1,10 @@
 # Time Series
 
-## Leveraging Causal Inference to Generate Accurate Forecasts
-
-https://careersatdoordash.com/blog/leveraging-causal-inference-to-generate-accurate-forecasts/
-
-June 14, 2022
-
-Chad Akkoyun and Qiyun Pan
-
-[Local](../readings/Leveraging%20Causal%20Inference%20to%20Generate%20Accurate%20Forecasts.mhtml)
-
-## Increasing Operational Efficiency with Scalable Forecasting
-
-https://careersatdoordash.com/blog/increasing-operational-efficiency-with-scalable-forecasting/
-
-Ryan Schork
-
-August 31, 2021
-
-[Local](../readings/Increasing%20Operational%20Efficiency%20with%20Scalable%20Forecasting.mhtml)
-
+## Features
+* Holiday features
+* Seasonality features
+* Trend features
+* Exogenous features
 
 ## Stationarity
 
@@ -95,6 +80,8 @@ Where
 * $S_t$ is the seasonal component,
 * $m$ is the seasonal period, and
 * $\alpha$, $\beta$, and $\gamma$ are smoothing parameters
+
+## Prophet
 
 ## Vector Autoregressive (VAR) and Extensions
 ### Vector Autoregressive Moving Average (VARMA)
@@ -237,3 +224,24 @@ Estimation of the causal effect of a treatment or intervention on an outcome of 
 * Twitter's AnomalyDetection
 * [LinkedIn's Luminol](https://github.com/linkedin/luminol)
 * [Netflix's RAD ("Robust Anomaly Detection")](https://netflixtechblog.com/rad-outlier-detection-on-big-data-d6b0494371cc)
+
+
+## Leveraging Causal Inference to Generate Accurate Forecasts
+
+https://careersatdoordash.com/blog/leveraging-causal-inference-to-generate-accurate-forecasts/
+
+June 14, 2022
+
+Chad Akkoyun and Qiyun Pan
+
+[Local](../readings/Leveraging%20Causal%20Inference%20to%20Generate%20Accurate%20Forecasts.mhtml)
+
+## Increasing Operational Efficiency with Scalable Forecasting
+
+https://careersatdoordash.com/blog/increasing-operational-efficiency-with-scalable-forecasting/
+
+Ryan Schork
+
+August 31, 2021
+
+[Local](../readings/Increasing%20Operational%20Efficiency%20with%20Scalable%20Forecasting.mhtml)
